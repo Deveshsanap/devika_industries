@@ -1,102 +1,149 @@
-import React from 'react';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { MapPin, Phone, Mail, Send } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ContactPage = () => {
+  const location = useLocation();
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: ''
+  });
+
+  // Auto-fill the message if they clicked "Request Quote" from a product page
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const productOfInterest = queryParams.get('product');
+    
+    if (productOfInterest) {
+      setFormData(prev => ({
+        ...prev,
+        message: `Hello Devika Industries team,\n\nI would like to request an official quote and get more information regarding the following machine: ${productOfInterest}.\n\nPlease let me know the pricing, availability, and delivery details.`
+      }));
+    }
+  }, [location]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Here you would normally send the data to your Vercel backend API
+    console.log("Form submitted:", formData);
+    toast.success("Your inquiry has been sent! We will contact you soon.");
+    setFormData({ name: '', phone: '', email: '', message: '' }); // Reset form
+  };
+
   return (
-    <div className="bg-white min-h-screen font-sans">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       
-      {/* Header Banner */}
-      <div className="bg-[#1a1a1a] text-white py-16 text-center border-b-4 border-[#FF5722]">
-        <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-wide mb-2">Contact Us</h1>
-        <p className="text-gray-400 text-sm">We are here to help you with your machinery needs</p>
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Contact Us</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Ready to upgrade your industrial equipment? Send us a message or request a quote, and our expert team will guide you to the perfect solution.
+        </p>
       </div>
 
-      <div className="container mx-auto px-4 py-16">z
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         
-        {/* Contact Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        {/* Left Side: Contact Information */}
+        <div className="bg-gray-900 text-white rounded-2xl p-8 lg:p-10 shadow-xl">
+          <h2 className="text-2xl font-bold mb-8">Get in Touch</h2>
           
-          {/* Card 1: Sales */}
-          <div className="bg-gray-50 p-8 border border-gray-200 text-center hover:shadow-xl transition group">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:bg-[#FF5722] transition">
-              <Phone size={24} className="text-[#FF5722] group-hover:text-white transition" />
+          <div className="space-y-8">
+            <div className="flex items-start">
+              <MapPin className="w-6 h-6 text-orange-500 mt-1 mr-4 flex-shrink-0" />
+              <div>
+                <h4 className="font-bold text-lg mb-1">Corporate Office</h4>
+                <p className="text-gray-400">123 Industrial Area, Phase 1<br />City Name, State, 123456</p>
+              </div>
             </div>
-            <h3 className="font-bold text-xl mb-2">Sales Inquiry</h3>
-            <p className="text-gray-500 mb-1">+91 97149 89070</p>
-            <p className="text-gray-400 text-sm">sales@devikaindustries.com</p>
-          </div>
+            
+            <div className="flex items-start">
+              <Phone className="w-6 h-6 text-orange-500 mt-1 mr-4 flex-shrink-0" />
+              <div>
+                <h4 className="font-bold text-lg mb-1">Call Us</h4>
+                <p className="text-gray-400">+91 97149 89070<br />Mon-Sat, 9:00 AM - 6:00 PM</p>
+              </div>
+            </div>
 
-          {/* Card 2: Factory Address */}
-          <div className="bg-gray-50 p-8 border border-gray-200 text-center hover:shadow-xl transition group">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:bg-[#FF5722] transition">
-              <MapPin size={24} className="text-[#FF5722] group-hover:text-white transition" />
+            <div className="flex items-start">
+              <Mail className="w-6 h-6 text-orange-500 mt-1 mr-4 flex-shrink-0" />
+              <div>
+                <h4 className="font-bold text-lg mb-1">Email Us</h4>
+                <p className="text-gray-400">devikaindinc@gmail.com</p>
+              </div>
             </div>
-            <h3 className="font-bold text-xl mb-2">Factory Location</h3>
-            <p className="text-gray-500 text-sm px-4">
-              2 - Jay Jalaram Ind. Estate, Opp. Luby Polymers, Rajkot-3, Gujarat, India.
-            </p>
-          </div>
-
-          {/* Card 3: Working Hours */}
-          <div className="bg-gray-50 p-8 border border-gray-200 text-center hover:shadow-xl transition group">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:bg-[#FF5722] transition">
-              <Clock size={24} className="text-[#FF5722] group-hover:text-white transition" />
-            </div>
-            <h3 className="font-bold text-xl mb-2">Working Hours</h3>
-            <p className="text-gray-500 mb-1">Mon - Sat: 9:00 AM - 8:00 PM</p>
-            <p className="text-red-500 text-sm font-bold">Sunday Closed</p>
           </div>
         </div>
 
-        {/* Map & Form Section */}
-        <div className="flex flex-col lg:flex-row gap-0 shadow-2xl rounded-lg overflow-hidden border border-gray-200">
-          
-          {/* Left: Google Map */}
-          <div className="lg:w-1/2 h-[400px] lg:h-auto bg-gray-300 relative">
-             <iframe 
-               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.666636734645!2d70.79526731495448!3d22.29068798532845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3959ca248c77c099%3A0xdf5ac10af64ac8e9!2sRajkot%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1625634567890!5m2!1sen!2sin" 
-               width="100%" 
-               height="100%" 
-               style={{border:0}} 
-               allowFullScreen="" 
-               loading="lazy"
-               title="Devika Industries Location"
-               className="absolute inset-0 grayscale hover:grayscale-0 transition duration-700"
-             ></iframe>
-          </div>
-
-          {/* Right: Contact Form */}
-          <div className="lg:w-1/2 bg-white p-10 lg:p-14">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 uppercase">Send us a Message</h2>
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase">Your Name</label>
-                  <input type="text" className="w-full border-b border-gray-300 py-2 focus:border-[#FF5722] outline-none transition" placeholder="John Doe" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase">Phone Number</label>
-                  <input type="tel" className="w-full border-b border-gray-300 py-2 focus:border-[#FF5722] outline-none transition" placeholder="+91 98765 43210" />
-                </div>
-              </div>
-
+        {/* Right Side: The Contact Form */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-8 lg:p-10 shadow-lg border border-gray-100">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase">Email Address</label>
-                <input type="email" className="w-full border-b border-gray-300 py-2 focus:border-[#FF5722] outline-none transition" placeholder="john@company.com" />
+                <label className="block text-sm font-bold text-gray-700 mb-2">Full Name *</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  required
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none bg-gray-50"
+                  placeholder="John Doe"
+                />
               </div>
-
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase">Message</label>
-                <textarea rows="4" className="w-full border-b border-gray-300 py-2 focus:border-[#FF5722] outline-none transition resize-none" placeholder="I am interested in the Jumbo Slicer Machine..."></textarea>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  required
+                  value={formData.phone} 
+                  onChange={handleChange} 
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none bg-gray-50"
+                  placeholder="+91 XXXXX XXXXX"
+                />
               </div>
+            </div>
 
-              <button className="bg-[#FF5722] text-white px-10 py-4 font-bold uppercase tracking-widest hover:bg-orange-700 transition shadow-lg w-full md:w-auto">
-                Send Message
-              </button>
-            </form>
-          </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={handleChange} 
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none bg-gray-50"
+                placeholder="john@company.com"
+              />
+            </div>
 
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Your Inquiry / Message *</label>
+              <textarea 
+                name="message" 
+                required
+                rows="5"
+                value={formData.message} 
+                onChange={handleChange} 
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none bg-gray-50 resize-none"
+                placeholder="How can we help you?"
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit" 
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl transition-colors flex justify-center items-center shadow-md"
+            >
+              Send Message <Send className="ml-2 w-5 h-5" />
+            </button>
+          </form>
         </div>
+
       </div>
     </div>
   );

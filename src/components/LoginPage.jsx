@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Lock, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Login = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,26 +15,28 @@ const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
+    // login() now returns the user data if successful
     const loggedInUser = await login(email, password);
     
     if (loggedInUser) {
+      // Smart Routing based on role!
       if (loggedInUser.role === 'admin') {
         navigate('/admin-dashboard');
       } else {
+        // Customers and unverified dealers go to the homepage
         navigate('/'); 
       }
     }
     
     setIsLoading(false);
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
         
         <div className="text-center">
-          <h2 className="mt-2 text-3xl font-extrabold text-gray-900">Sign In</h2>
-          <p className="mt-2 text-sm text-gray-600">Access your Devika Industries account.</p>
+          <h2 className="mt-2 text-3xl font-extrabold text-gray-900">Admin Portal</h2>
+          <p className="mt-2 text-sm text-gray-600">Sign in to manage inventory and quotes.</p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -51,7 +53,7 @@ const handleSubmit = async (e) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50"
-                  placeholder="name@company.com"
+                  placeholder="admin@devikaind.com"
                 />
               </div>
             </div>
@@ -82,19 +84,9 @@ const handleSubmit = async (e) => {
             {isLoading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
-
-        <div className="text-center mt-4 border-t pt-4">
-          <p className="text-sm text-gray-600 mb-4">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-bold text-orange-500 hover:text-orange-600">
-              Register here
-            </Link>
-          </p>
-        </div>
-
       </div>
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;

@@ -1,181 +1,172 @@
-import React, { useState } from 'react';
-import { Phone, Facebook, Linkedin, Twitter, ChevronDown, ChevronRight, ShoppingCart, Menu, X, User } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { ChevronDown, ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-// Ensure your logo is at this exact path: src/assets/logo.jpeg
 import logo from '../assets/logo.jpeg';
+// Exact categories from the Devika Industries original site
+const productCategories = [
+  "Food Processing Machine",
+  "Commercial Kitchen Equipment",
+  "Grain And Seed Processing Machine / Plant",
+  "Industrial Food Processing Machine",
+  "Organic Fertilizer Processing Machine",
+  "Spares"
+];
 
 const Header = () => {
-  const { cartCount } = useCart();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const productCategories = [
-    "Food Processing",
-    "Commercial Kitchen",
-    "Grain Processing",
-    "Industrial Machinery",
-    "Spares"
-  ];
-
-  // Helper to close menu when a link is clicked
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <header className="w-full relative z-50 bg-white shadow-md">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
 
-      {/* --- UPPER SECTION (Logo, Socials, Mobile Toggle) --- */}
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-
-        {/* 1. MOBILE MENU TOGGLE (Visible only on mobile) */}
-        <button
-          className="md:hidden text-gray-800 p-2"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-
-        {/* 2. LOGO (Centered on mobile, Left on desktop) */}
-        <Link to="/" className="flex items-center">
-          <img src={logo} alt="Devika Industries" className="h-16 object-contain" />
-        </Link>
-
-        {/* 3. RIGHT ACTIONS (Socials, Auth, Cart) */}
-        <div className="flex items-center gap-4">
-
-          {/* Desktop Socials (Hidden on Mobile) */}
-          <div className="hidden md:flex gap-2">
-            <a href="https://www.facebook.com/DevikaIndustriesInc.India" target="_blank" rel="noopener noreferrer" className="p-2 border border-[#FF5722] text-[#FF5722] hover:bg-[#FF5722] hover:text-white transition rounded-sm"><Facebook size={18} /></a>
-            <a href="#" className="p-2 border border-[#FF5722] text-[#FF5722] hover:bg-[#FF5722] hover:text-white transition rounded-sm"><Linkedin size={18} /></a>
-            <a href="#" className="p-2 border border-[#FF5722] text-[#FF5722] hover:bg-[#FF5722] hover:text-white transition rounded-sm"><Twitter size={18} /></a>
-          </div>
-
-          {/* LOGIN / USER SECTION */}
-          {user ? (
-            <div className="flex items-center gap-2 ml-2 md:ml-4">
-              <div className="text-right hidden md:block">
-                <span className="block text-xs text-gray-500">Welcome,</span>
-                <span className="block text-sm font-bold text-[#FF5722] leading-none">{user.name}</span>
-              </div>
-              <button onClick={logout} className="text-xs underline text-gray-500 hover:text-red-500 ml-1">Logout</button>
-            </div>
-          ) : (
-            <Link to="/login" className="flex items-center gap-1 ml-2 md:ml-4 text-sm font-bold text-gray-700 hover:text-[#FF5722] transition">
-              <User size={20} />
-              <span className="hidden md:inline">Login</span>
-            </Link>
-          )}
-
-          {/* CART ICON */}
-          <Link to="/cart" className="relative p-2 text-[#FF5722] hover:text-orange-700 transition">
-            <ShoppingCart size={24} />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
-                {cartCount}
-              </span>
-            )}
+          {/* Logo */}
+          {/* Company Logo */}
+          <Link to="/" className="flex items-center">
+            <img
+              src={logo}
+              alt="Devika Industries Logo"
+              className="h-10 w-auto object-contain mix-blend-multiply"
+            />
           </Link>
-        </div>
-      </div>
 
-      {/* --- DESKTOP NAVIGATION (Hidden on Mobile) --- */}
-      <div className="hidden md:block bg-[#FF5722] w-full">
-        <div className="container mx-auto px-4">
-          <nav>
-            <ul className="flex flex-wrap text-white text-sm font-bold uppercase tracking-wide">
-              <Link to="/"><li className="px-6 py-4 hover:bg-black/10 transition">Home</li></Link>
-
-              {/* DROPDOWN MENU */}
-              <li className="group relative px-6 py-4 cursor-pointer hover:bg-black/10 transition flex items-center gap-1">
-                <Link to="/products">Explore Products</Link>
-                <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
-
-                <div className="absolute top-full left-0 w-[300px] bg-white text-gray-800 shadow-xl border-t-4 border-black opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 z-50">
-                  <ul className="py-2">
-                    {productCategories.map((item, index) => (
-                      <Link key={index} to={`/products?category=${encodeURIComponent(item)}`}>
-                        <li className="px-6 py-3 hover:bg-orange-50 hover:text-[#FF5722] border-b border-gray-100 last:border-0 transition-colors flex justify-between items-center group/item">
-                          <span className="text-sm font-semibold capitalize text-left">{item}</span>
-                          <ChevronRight size={14} className="opacity-0 group-hover/item:opacity-100 text-[#FF5722]" />
-                        </li>
-                      </Link>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-
-              <Link to="/presence"><li className="px-6 py-4 hover:bg-black/10 transition">Our Presence</li></Link>
-              <Link to="/about">
-                <li className="px-6 py-4 hover:bg-black/10 transition">About Us</li>
-              </Link>
-              <Link to="/contact"><li className="px-6 py-4 hover:bg-black/10 transition">Contact Us</li></Link>
-            </ul>
-          </nav>
-        </div>
-      </div>
-
-      {/* --- MOBILE MENU OVERLAY (Slide Down) --- */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 z-50 animate-in slide-in-from-top-5 duration-300">
-          <nav className="flex flex-col p-4 space-y-2">
-
-            <Link to="/" onClick={closeMenu} className="p-3 border-b border-gray-100 font-bold text-gray-800 hover:text-[#FF5722]">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6 items-center">
+            <Link to="/" className="text-gray-800 hover:text-orange-500 px-3 py-2 rounded-md font-medium">
               Home
             </Link>
 
-            {/* Mobile Dropdown Logic */}
-            <div className="p-3 border-b border-gray-100">
-              <span className="font-bold text-gray-800 block mb-2">Products</span>
-              <div className="pl-4 space-y-2 border-l-2 border-[#FF5722]">
-                {productCategories.map((item, idx) => (
+            {/* Products Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center text-gray-800 hover:text-orange-500 px-3 py-2 rounded-md font-medium"
+              >
+                What do you need?
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-2" role="menu" aria-orientation="vertical">
+                    {productCategories.map((category, index) => (
+                      <Link
+                        key={index}
+                        to={`/products?category=${encodeURIComponent(category.toLowerCase())}`}
+                        className="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors flex justify-between items-center"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        {category}
+                        <span className="text-gray-400 text-xs">›</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link to="/presence" className="text-gray-800 hover:text-orange-500 px-3 py-2 rounded-md font-medium">
+              Our Presence
+            </Link>
+            <Link to="/about" className="text-gray-800 hover:text-orange-500 px-3 py-2 rounded-md font-medium">
+              About Us
+            </Link>
+            <Link to="/contact" className="text-gray-800 hover:text-orange-500 px-3 py-2 rounded-md font-medium">
+              Contact Us
+            </Link>
+          </nav>
+
+          {/* Right side CTA & Icons */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link to="/contact" className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-full font-medium transition-colors text-sm">
+              Get A Free Quote
+            </Link>
+            <div className="flex items-center space-x-3 ml-4 border-l pl-4">
+              <Link to="/cart" className="text-gray-500 hover:text-orange-500">
+                <ShoppingCart className="h-5 w-5" />
+              </Link>
+              {/* User Account Icon with Green Dot */}
+              {/* User Account Icon */}
+              <Link
+                to={user ? (user.role === 'admin' ? '/admin-dashboard' : '/profile') : '/login'}
+                className="relative p-2 text-gray-600 hover:text-orange-500 transition-colors"
+              >
+                <User className="w-6 h-6" />
+                {/* The Green Dot if logged in */}
+                {user && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+                )}
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50">Home</Link>
+
+            <div className="px-3 py-2">
+              <div className="text-base font-medium text-gray-900 mb-2">What do you need?</div>
+              <div className="pl-4 space-y-1 border-l-2 border-orange-200">
+                {productCategories.map((category, index) => (
                   <Link
-                    key={idx}
-                    to={`/products?category=${encodeURIComponent(item)}`}
-                    onClick={closeMenu}
-                    className="block text-sm text-gray-600 hover:text-[#FF5722]"
+                    key={index}
+                    to={`/products?category=${encodeURIComponent(category.toLowerCase())}`}
+                    className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-orange-600 hover:bg-orange-50"
                   >
-                    {item}
+                    {category}
                   </Link>
                 ))}
-                <Link to="/products" onClick={closeMenu} className="block text-sm font-bold text-[#FF5722] mt-2">
-                  View All →
+              </div>
+            </div>
+
+            <Link to="/presence" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50">Our Presence</Link>
+            <Link to="/about" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50">About Us</Link>
+            <Link to="/contact" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50">Contact Us</Link>
+
+            <div className="flex flex-col space-y-3 px-3 py-4 border-t border-gray-200 mt-4">
+              <Link to="/contact" className="text-center bg-gray-500 text-white px-4 py-2 rounded-full font-medium">
+                Get A Free Quote
+              </Link>
+              <div className="flex justify-around pt-4">
+                <Link to="/cart" className="text-gray-600 hover:text-orange-500 flex items-center">
+                  <ShoppingCart className="h-6 w-6 mr-2" /> Cart
+                </Link>
+                <Link to="/login" className="text-gray-600 hover:text-orange-500 flex items-center">
+                  <User className="h-6 w-6 mr-2" /> Login
                 </Link>
               </div>
             </div>
-
-            <Link to="/presence" onClick={closeMenu} className="p-3 border-b border-gray-100 font-bold text-gray-800 hover:text-[#FF5722]">
-              Our Presence
-            </Link>
-
-            <Link to="/about">
-              <li className="px-6 py-4 hover:bg-black/10 transition">About Us</li>
-            </Link>
-
-            <Link to="/contact" onClick={closeMenu} className="p-3 font-bold text-gray-800 hover:text-[#FF5722]">
-              Contact Us
-            </Link>
-
-            {/* Mobile Auth Links */}
-            {!user ? (
-              <Link to="/login" onClick={closeMenu} className="p-3 border-t border-gray-100 font-bold text-gray-800 hover:text-[#FF5722] flex items-center gap-2">
-                <User size={18} /> Login / Signup
-              </Link>
-            ) : (
-              <div className="p-3 border-t border-gray-100">
-                <p className="text-sm text-gray-500">Logged in as <span className="font-bold text-[#FF5722]">{user.name}</span></p>
-                <button onClick={() => { logout(); closeMenu(); }} className="text-sm underline mt-1">Logout</button>
-              </div>
-            )}
-
-            {/* Mobile Socials */}
-            <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-gray-100">
-              <a href="#" className="p-2 bg-gray-100 rounded-full"><Facebook size={20} className="text-[#FF5722]" /></a>
-              <a href="#" className="p-2 bg-gray-100 rounded-full"><Linkedin size={20} className="text-[#FF5722]" /></a>
-              <a href="#" className="p-2 bg-gray-100 rounded-full"><Twitter size={20} className="text-[#FF5722]" /></a>
-            </div>
-
-          </nav>
+          </div>
         </div>
       )}
     </header>

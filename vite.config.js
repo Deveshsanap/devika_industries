@@ -1,13 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
-    }),
-  ],
+  plugins: [react()],
+  server: {
+    proxy: {
+      // Whenever our app sees "/api", it routes it to the Vercel backend securely
+      '/api': {
+        target: 'https://devika-backend.vercel.app',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 })

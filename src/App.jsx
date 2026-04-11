@@ -1,10 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast'; // <--- Added this import
+import { Toaster } from 'react-hot-toast';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import ProfilePage from './components/ProfilePage';
+
+// Auth Components
 import Login from './components/Login';
 import Signup from './components/Signup';
+import ProtectedRoute from './components/ProtectedRoute'; // <--- Added this import
 
 // Components
 import TopBar from './components/TopBar';
@@ -26,6 +30,9 @@ import AboutPage from './components/AboutPage';
 import NotFound from './components/NotFound';
 import Privacy from './components/Privacy';
 import Terms from './components/Terms';
+import AdminDashboard from './components/AdminDashboard';
+
+
 
 // Create a Home Component to hold the Landing Page sections
 const Home = () => (
@@ -53,6 +60,7 @@ function App() {
 
             <main>
               <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<AllProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
@@ -65,6 +73,20 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/profile" element={<ProfilePage />} />
+
+                {/* Protected / Secure Routes */}
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <ProtectedRoute requireAdmin={true}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+
+                {/* 404 Fallback Route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

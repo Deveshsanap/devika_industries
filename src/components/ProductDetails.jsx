@@ -1,169 +1,143 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Truck, ShieldCheck, ArrowLeft, ShoppingCart, Check, Lock } from 'lucide-react';
-import toast from 'react-hot-toast'; // Import Toast
-import { products } from '../data/products';
+import { ArrowLeft, ShoppingCart, CheckCircle, ShieldCheck, Truck } from 'lucide-react';
+import { fetchProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { user } = useAuth(); // Get User Status
   
   const [product, setProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const found = products.find(p => p.id === parseInt(id));
-    setProduct(found);
+    const getProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchProductById(id);
+        
+        // Handle variations in backend response structures
+        const productData = data.data ? data.data : data;
+        setProduct(productData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching product details:", err);
+        setError("Could not find this machine. It may have been removed.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) getProduct();
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!user) {
-      // Error Toast for Login
-      toast.error("Please login to add items to cart", {
-        icon: '🔒',
-        style: { borderRadius: '10px', background: '#333', color: '#fff' },
-      });
-      navigate('/login');
-      return;
+    if (product) {
+      addToCart(product);
     }
-    
-    addToCart(product, quantity);
-    
-    // Success Toast
-    toast.success(`${product.name} added to cart!`, {
-      style: { border: '1px solid #FF5722', padding: '16px', color: '#FF5722' },
-      iconTheme: { primary: '#FF5722', secondary: '#FFFAEE' },
-    });
   };
 
-  const handleBuyNow = () => {
-    if (!user) {
-      // Error Toast for Login
-      toast.error("Please login to place an order", {
-         icon: '🔒',
-         style: { borderRadius: '10px', background: '#333', color: '#fff' },
-      });
-      navigate('/login');
-      return;
-    }
-    // Add to cart and redirect to checkout
-    addToCart(product, quantity);
-    navigate('/checkout');
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
   }
 
-  if (!product) return <div className="p-20 text-center">Loading Product...</div>;
+  if (error || !product) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">{error || "Product not found"}</h2>
+        <Link to="/products" className="text-orange-500 font-bold hover:underline">
+          &larr; Back to Catalog
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white min-h-screen pb-20 pt-6 font-sans">
-      <div className="container mx-auto px-4">
+    <div className="bg-white min-h-screen py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <Link to="/" className="inline-flex items-center text-sm text-gray-500 hover:text-[#FF5722] mb-6 transition">
-          <ArrowLeft size={16} className="mr-1" /> Back to Products
+        <Link to="/products" className="inline-flex items-center text-gray-500 hover:text-orange-500 font-medium mb-8 transition-colors">
+          <ArrowLeft className="w-5 h-5 mr-2" /> Back to Catalog
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           
-          {/* LEFT: IMAGE GALLERY */}
-          <div className="lg:col-span-5">
-            <div className="border border-gray-200 rounded-sm mb-4 overflow-hidden relative group">
-              <img src={product.image} alt={product.name} className="w-full h-auto object-cover group-hover:scale-105 transition duration-500" />
-            </div>
+          {/* Left Column: Image */}
+          <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 flex items-center justify-center min-h-[400px]">
+            <img 
+              src={(product.images && product.images.length > 0) ? product.images[0] : (product.image || '/vite.svg')} 
+              alt={product.name} 
+              className="w-full max-h-[500px] object-contain mix-blend-multiply"
+            />
           </div>
 
-          {/* CENTER: PRODUCT INFO */}
-          <div className="lg:col-span-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">{product.name}</h1>
+          {/* Right Column: Details */}
+          <div className="flex flex-col justify-center">
             
-            <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-4">
-               <div className="flex text-yellow-400">
-                 {[...Array(5)].map((_, i) => (
-                   <Star key={i} size={16} fill={i < Math.floor(product.rating) ? "currentColor" : "none"} />
-                 ))}
-               </div>
-               <span className="text-sm text-blue-600 hover:underline cursor-pointer">{product.reviews} Ratings</span>
+            <div className="mb-2">
+              <span className="text-sm font-bold text-orange-500 uppercase tracking-wider bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+                {product.subCategory || product.category || 'Industrial Machinery'}
+              </span>
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-4 mb-4">
+              {product.name}
+            </h1>
+            
+            <p className="text-3xl font-extrabold text-gray-900 mb-6 pb-6 border-b border-gray-100">
+              {product.price ? `₹${product.price.toLocaleString('en-IN')}` : 'Price on Request'}
+            </p>
+
+            <div className="prose prose-orange text-gray-600 mb-8">
+              <p className="whitespace-pre-line leading-relaxed">
+                {product.description || "No specific description provided for this machine. Please contact sales for technical specifications and motor details."}
+              </p>
             </div>
 
-            <div className="mb-6">
-               <span className="text-sm text-gray-500 block mb-1">M.R.P.: <span className="line-through">₹{(product.price * 1.2).toFixed(0)}</span></span>
-               <div className="flex items-baseline gap-2">
-                 <span className="text-3xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
-                 <span className="text-sm text-[#FF5722] font-bold">(-20%)</span>
-               </div>
-               <p className="text-xs text-gray-500 mt-1">Inclusive of all taxes</p>
+            {/* Trust Badges */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                <span className="text-sm font-medium">Quality Tested</span>
+              </div>
+              <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <ShieldCheck className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                <span className="text-sm font-medium">1 Year Warranty</span>
+              </div>
+              <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 sm:col-span-2">
+                <Truck className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0" />
+                <span className="text-sm font-medium">Pan-India Delivery Available</span>
+              </div>
             </div>
 
-            <div className="mb-6">
-              <h3 className="font-bold text-gray-800 mb-2 text-sm uppercase">Product Highlights</h3>
-              <ul className="space-y-2">
-                {product.specs?.map((spec, index) => (
-                  <li key={index} className="flex items-start text-sm text-gray-600">
-                    <Check size={16} className="text-green-600 mr-2 mt-0.5 shrink-0" />
-                    {spec}
-                  </li>
-                ))}
-              </ul>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+              <button 
+                onClick={handleAddToCart}
+                className="flex-1 bg-orange-500 text-white py-4 rounded-xl font-bold hover:bg-orange-600 transition-colors flex justify-center items-center shadow-lg shadow-orange-500/20"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" /> Add to Quote Cart
+              </button>
+
+              <button 
+                onClick={() => {
+                  handleAddToCart();
+                  navigate('/checkout');
+                }}
+                className="flex-1 bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors"
+              >
+                Request Quote Now
+              </button>
             </div>
 
-            <div className="mb-6">
-               <h3 className="font-bold text-gray-800 mb-2 text-sm uppercase">Description</h3>
-               <p className="text-sm text-gray-600 leading-relaxed text-justify">{product.description}</p>
-            </div>
           </div>
-
-          {/* RIGHT: BUY BOX */}
-          <div className="lg:col-span-3">
-             <div className="border border-gray-200 rounded-lg p-6 shadow-lg bg-white sticky top-24">
-                <div className="mb-4">
-                   {product.stock ? (
-                     <span className="text-green-600 text-lg font-bold">In Stock</span>
-                   ) : (
-                     <span className="text-red-600 text-lg font-bold">Currently Unavailable</span>
-                   )}
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Quantity</label>
-                  <select 
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="w-full border border-gray-300 rounded p-2 focus:border-[#FF5722] outline-none"
-                  >
-                     {[1,2,3,4,5].map(num => <option key={num} value={num}>{num}</option>)}
-                  </select>
-                </div>
-
-                <div className="space-y-3">
-                  {/* ADD TO CART BUTTON */}
-                  <button 
-                    onClick={handleAddToCart}
-                    disabled={!product.stock}
-                    className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black border border-[#FCD200] font-medium py-3 rounded-full shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {user ? <ShoppingCart size={18} /> : <Lock size={16} />}
-                    {user ? "Add to Cart" : "Login to Add"}
-                  </button>
-                  
-                  {/* BUY NOW BUTTON */}
-                  <button 
-                    onClick={handleBuyNow}
-                    disabled={!product.stock}
-                    className="w-full bg-[#FA8900] hover:bg-[#E57D00] text-white font-medium py-3 rounded-full shadow-sm transition disabled:opacity-50"
-                  >
-                    {user ? "Buy Now" : "Login to Buy"}
-                  </button>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-2">
-                   <div className="flex items-center gap-2"><ShieldCheck size={14} className="text-gray-400"/><span>Secure Transaction</span></div>
-                   <div className="flex items-center gap-2"><Truck size={14} className="text-gray-400"/><span>Dispatched by Devika Industries</span></div>
-                </div>
-             </div>
-          </div>
-
         </div>
       </div>
     </div>
