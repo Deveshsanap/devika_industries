@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/logo.jpeg';
+import logo from '/logo.jpeg';
 // Exact categories from the Devika Industries original site
 const productCategories = [
   "Food Processing Machine",
