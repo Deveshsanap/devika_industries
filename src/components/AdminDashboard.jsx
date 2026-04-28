@@ -5,14 +5,13 @@ import {
 } from '../services/api';
 import { 
   PackagePlus, Users, ShieldCheck, Image as ImageIcon, UploadCloud, 
-  LayoutDashboard, List, Trash2, FileText, CheckCircle 
+  LayoutDashboard, List, Trash2, FileText, CheckCircle, LogOut 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user,logout } = useAuth();
   const [activeTab, setActiveTab] = useState('quotes'); 
-  
   const [customers, setCustomers] = useState([]);
   const [dealers, setDealers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -106,22 +105,34 @@ const AdminDashboard = () => {
           <p className="text-gray-400 text-sm mt-1">{user?.email}</p>
         </div>
         
-        <nav className="p-4 space-y-2">
-          <button onClick={() => setActiveTab('quotes')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'quotes' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
-            <FileText className="w-5 h-5 mr-3" /> Quote Requests
-          </button>
-          <button onClick={() => setActiveTab('manage-products')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'manage-products' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
-            <List className="w-5 h-5 mr-3" /> Inventory ({products.length})
-          </button>
-          <button onClick={() => setActiveTab('add-product')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-product' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
-            <PackagePlus className="w-5 h-5 mr-3" /> Add Machine
-          </button>
-          <button onClick={() => setActiveTab('dealers')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'dealers' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
-            <ShieldCheck className="w-5 h-5 mr-3" /> Dealers
-          </button>
-          <button onClick={() => setActiveTab('customers')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'customers' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
-            <Users className="w-5 h-5 mr-3" /> Customers
-          </button>
+       <nav className="p-4 flex flex-col h-[calc(100vh-100px)]">
+          <div className="space-y-2 flex-1">
+            <button onClick={() => setActiveTab('quotes')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'quotes' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
+              <FileText className="w-5 h-5 mr-3" /> Quote Requests
+            </button>
+            <button onClick={() => setActiveTab('manage-products')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'manage-products' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
+              <List className="w-5 h-5 mr-3" /> Inventory ({products.length})
+            </button>
+            <button onClick={() => setActiveTab('add-product')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-product' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
+              <PackagePlus className="w-5 h-5 mr-3" /> Add Machine
+            </button>
+            <button onClick={() => setActiveTab('dealers')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'dealers' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
+              <ShieldCheck className="w-5 h-5 mr-3" /> Dealers
+            </button>
+            <button onClick={() => setActiveTab('customers')} className={`w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'customers' ? 'bg-orange-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}>
+              <Users className="w-5 h-5 mr-3" /> Customers
+            </button>
+          </div>
+
+          {/* SIGN OUT BUTTON AT THE BOTTOM */}
+          <div className="pt-4 border-t border-gray-800 mt-auto">
+            <button 
+              onClick={logout} 
+              className="w-full flex items-center px-4 py-3 rounded-lg font-bold transition-colors text-red-400 hover:bg-red-500/10 hover:text-red-500"
+            >
+              <LogOut className="w-5 h-5 mr-3" /> Sign Out
+            </button>
+          </div>
         </nav>
       </div>
 
@@ -253,29 +264,52 @@ const AdminDashboard = () => {
         )}
 
         {/* DEALERS TAB WITH VERIFY BUTTON */}
-        {activeTab === 'dealers' && (
+                {activeTab === 'dealers' && (
            <div>
              <h1 className="text-3xl font-extrabold text-gray-900 mb-6">Registered Dealers</h1>
              {dealers.length === 0 ? <p className="text-gray-500">No dealers found.</p> : (
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {dealers.map(d => (
-                   <div key={d._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
-                     <div>
-                       <h3 className="font-bold text-gray-900 text-lg">{d.name}</h3>
-                       <p className="text-gray-500 text-sm">{d.email}</p>
+                   <div key={d._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                     <div className="mb-4 border-b border-gray-100 pb-4">
+                       <div className="flex justify-between items-start">
+                         <div>
+                           <h3 className="font-extrabold text-gray-900 text-lg">{d.companyName || d.name}</h3>
+                           <p className="text-gray-500 text-sm">{d.email}</p>
+                         </div>
+                         <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-bold uppercase">Dealer</span>
+                       </div>
+                       
+                       <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                         <div className="bg-gray-50 p-2 rounded">
+                           <span className="block text-xs text-gray-400 font-bold uppercase">Contact Person</span>
+                           <span className="text-gray-800 font-medium">{d.name}</span>
+                         </div>
+                         <div className="bg-gray-50 p-2 rounded">
+                           <span className="block text-xs text-gray-400 font-bold uppercase">Mobile</span>
+                           <span className="text-gray-800 font-medium">{d.mobile || 'N/A'}</span>
+                         </div>
+                         <div className="bg-gray-50 p-2 rounded col-span-2">
+                           <span className="block text-xs text-gray-400 font-bold uppercase">GST Number</span>
+                           <span className="text-gray-800 font-mono font-medium">{d.gstNumber || 'N/A'}</span>
+                         </div>
+                       </div>
                      </div>
-                     {d.isVerified ? (
-                       <span className="flex items-center text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full">
-                         <CheckCircle className="w-4 h-4 mr-1" /> Verified
-                       </span>
-                     ) : (
-                       <button 
-                         onClick={() => handleVerifyDealer(d._id)}
-                         className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold transition-colors text-sm"
-                       >
-                         Approve Dealer
-                       </button>
-                     )}
+
+                     <div className="flex justify-end">
+                       {d.isVerified ? (
+                         <span className="flex items-center text-green-600 font-bold bg-green-50 px-4 py-2 rounded-lg">
+                           <CheckCircle className="w-5 h-5 mr-2" /> Verified & Active
+                         </span>
+                       ) : (
+                         <button 
+                           onClick={() => handleVerifyDealer(d._id)}
+                           className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                         >
+                           Approve & Verify Dealer
+                         </button>
+                       )}
+                     </div>
                    </div>
                  ))}
                </div>

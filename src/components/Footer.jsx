@@ -11,12 +11,14 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             {/* Company Logo */}
-            <div className="mb-6 bg-white p-2 inline-block rounded-lg">
+            {/* Company Logo */}
+            <div className="mb-6 bg-white p-2 inline-flex items-start rounded-lg">
               <img
                 src={logo}
                 alt="Devika Industries Logo"
                 className="h-12 w-auto object-contain"
               />
+              <span className="text-gray-900 font-bold text-sm mt-0 -ml-1">®</span>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
               India's premier B2B marketplace for high-quality industrial machinery, spare parts, and manufacturing equipment.

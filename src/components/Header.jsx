@@ -37,12 +37,14 @@ const Header = () => {
 
           {/* Logo */}
           {/* Company Logo */}
-          <Link to="/" className="flex items-center">
+          {/* Company Logo */}
+          <Link to="/" className="inline-flex items-start">
             <img
               src={logo}
               alt="Devika Industries Logo"
               className="h-10 w-auto object-contain mix-blend-multiply"
             />
+            <span className="text-gray-900 font-bold text-sm mt-0 -ml-1">®</span>
           </Link>
 
           {/* Desktop Navigation */}
