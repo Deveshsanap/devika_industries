@@ -12,13 +12,13 @@ const Footer = () => {
           <div>
             {/* Company Logo */}
             {/* Company Logo */}
-            <div className="mb-6 bg-white p-2 inline-flex items-start rounded-lg">
+            <div className="mb-6  p-2 inline-flex items-start rounded-lg">
               <img
                 src={logo}
                 alt="Devika Industries Logo"
-                className="h-12 w-auto object-contain"
+                className="h-20 object-contain"
               />
-              <span className="text-gray-900 font-bold text-sm mt-0 -ml-1">®</span>
+            <span className="text-white-900 font-bold text-sm mt-0 -ml-4 mt-3 ">®</span>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
               India's premier B2B marketplace for high-quality industrial machinery, spare parts, and manufacturing equipment.
@@ -86,7 +86,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} Devika Industries. All rights reserved.
+            &copy; {new Date().getFullYear()} DEVIKA INDUSTRIES INC. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-500">
             <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

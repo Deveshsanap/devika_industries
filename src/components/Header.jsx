@@ -42,9 +42,11 @@ const Header = () => {
             <img
               src={logo}
               alt="Devika Industries Logo"
-              className="h-10 w-auto object-contain mix-blend-multiply"
+              width={75}
+              height={75}
+              className=" object-contain mix-blend-multiply"
             />
-            <span className="text-gray-900 font-bold text-sm mt-0 -ml-1">®</span>
+            <span className="text-gray-900 font-bold text-sm mt-0 -ml-4 mt-2">®</span>
           </Link>
 
           {/* Desktop Navigation */}
